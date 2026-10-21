@@ -156,6 +156,9 @@ create table public.orders (
   provider text not null check (provider in ('stripe', 'razorpay', 'simulator', 'free')),
   provider_checkout_id text,
   provider_payment_reference text,
+  -- Hosted checkout URL, reused if the customer returns within the session lifetime.
+  checkout_url text check (checkout_url is null or char_length(checkout_url) <= 1000),
+  checkout_expires_at timestamptz,
   entitlement_snapshot jsonb not null,
   failure_reason text check (failure_reason is null or char_length(failure_reason) <= 300),
   created_at timestamptz not null default now(),
