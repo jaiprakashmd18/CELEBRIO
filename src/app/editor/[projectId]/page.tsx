@@ -5,6 +5,7 @@ import { EditorApp } from "@/components/editor/editor-app";
 import { requireUser } from "@/lib/auth";
 import { PROJECT_COLUMNS, loadTemplateMeta, loadTemplateVersion, type ProjectRow } from "@/lib/data/projects";
 import { projectDataSchema } from "@/lib/templates/schema";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Edit invitation" };
@@ -21,7 +22,9 @@ export default async function EditProjectPage({ params, searchParams }: { params
   // RLS already limits rows to the owner; this check keeps admins from opening customers' editors.
   if (!row || row.owner_id !== user.id) notFound();
 
-  const [definition, meta] = await Promise.all([loadTemplateVersion(supabase, row.template_id, row.template_version), loadTemplateMeta(supabase, row.template_id)]);
+  // Ownership is verified above; template metadata is read with the server key so a draft
+  // stays usable even if its template was later unpublished.
+  const [definition, meta] = await Promise.all([loadTemplateVersion(supabase, row.template_id, row.template_version), loadTemplateMeta(createSupabaseAdminClient(), row.template_id)]);
   const project = projectDataSchema.safeParse(row.project_data);
   if (!definition || !meta || !project.success) notFound();
 

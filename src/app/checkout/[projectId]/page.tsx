@@ -11,6 +11,7 @@ import { formatMoney } from "@/lib/money";
 import { PACKAGE_LABELS, availablePackages, calculateQuote } from "@/lib/pricing";
 import { missingRequiredFields } from "@/lib/projects/validate";
 import { FORMAT_IDS, FORMAT_SIZES, projectDataSchema } from "@/lib/templates/schema";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Checkout" };
@@ -23,7 +24,9 @@ export default async function CheckoutPage({ params }: { params: Promise<{ proje
   const { data } = await supabase.from("projects").select(PROJECT_COLUMNS).eq("id", projectId).maybeSingle();
   const row = data as ProjectRow | null;
   if (!row || row.owner_id !== user.id) notFound();
-  const [definition, meta] = await Promise.all([loadTemplateVersion(supabase, row.template_id, row.template_version), loadTemplateMeta(supabase, row.template_id)]);
+  // Ownership is verified above; template metadata is read with the server key so a draft
+  // stays usable even if its template was later unpublished.
+  const [definition, meta] = await Promise.all([loadTemplateVersion(supabase, row.template_id, row.template_version), loadTemplateMeta(createSupabaseAdminClient(), row.template_id)]);
   const project = projectDataSchema.safeParse(row.project_data);
   if (!definition || !meta || !project.success) notFound();
 

@@ -34,7 +34,7 @@ Every Celebrio template is a versioned JSON document validated by `templateDefin
 
 Palettes define seven colours: `background`, `surface`, `primary`, `secondary`, `accent`, `text`, `muted`. Elements refer to them as `"palette.primary"` (or a literal `#RRGGBB`), so switching palettes recolours the whole design.
 
-Font sets assign a family to three roles: `display`, `script` and `body`. Available families (all SIL OFL): `playfair`, `cormorant`, `inter`, `greatvibes`, `montserrat`, `bebas`, `josefin`, `dmserif`, `pacifico`. Adding a font: put the TTF in `public/fonts`, register it in `src/lib/rendering/fonts.ts`, run `npm run fonts:metrics`, and regenerate `src/app/template-fonts.css` (see the generator snippet in that file's header).
+Font sets assign a family to three roles: `display`, `script` and `body`. Available families (all SIL OFL): `playfair`, `cormorant`, `inter`, `greatvibes`, `montserrat`, `bebas`, `josefin`, `dmserif`, `pacifico`. Adding a font: put the TTF in `public/fonts`, register it in `src/lib/rendering/fonts.ts`, then run `npm run fonts:metrics` and `npm run fonts:css`.
 
 ### Layouts
 
