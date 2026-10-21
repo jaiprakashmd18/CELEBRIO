@@ -14,7 +14,7 @@ export function TemplateCard({ template, priority = false }: { template: Catalog
     <article className="group relative">
       <Link href={`/templates/${template.slug}`} className="block rounded-[var(--radius-card)] focus-visible:outline-offset-4">
         <div className="relative overflow-hidden rounded-[var(--radius-card)] bg-sand ring-1 ring-line transition duration-300 group-hover:-translate-y-1 group-hover:shadow-lift">
-          <div className={isLandscapeOnly ? "aspect-[16/9]" : "aspect-[9/16]"}>
+          <div className={isLandscapeOnly ? "relative aspect-[16/9]" : "relative aspect-[9/16]"}>
             {template.previewPath ? (
               <Image
                 src={template.previewPath}
