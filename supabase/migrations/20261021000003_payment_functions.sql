@@ -53,6 +53,7 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+#variable_conflict use_column
 declare
   o public.orders%rowtype;
 begin
@@ -100,7 +101,7 @@ begin
   )
   on conflict on constraint entitlements_order_id_key do nothing;
 
-  update public.projects set status = 'purchased' where id = o.project_id and status = 'draft';
+  update public.projects p set status = 'purchased' where p.id = o.project_id and p.status = 'draft';
 
   insert into public.order_events (order_id, from_status, to_status, source, provider_event_id)
   values (o.id, o.status, 'paid', case when p_provider = 'free' then 'checkout' else 'webhook' end, p_event_id);
@@ -122,6 +123,7 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+#variable_conflict use_column
 declare
   o public.orders%rowtype;
 begin
@@ -159,6 +161,7 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
+#variable_conflict use_column
 declare
   o public.orders%rowtype;
 begin
