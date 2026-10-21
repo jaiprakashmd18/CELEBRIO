@@ -1,0 +1,123 @@
+@import "tailwindcss";
+@import "./template-fonts.css";
+
+/*
+ * Celebrio design tokens. Change the brand here and the whole interface follows.
+ */
+:root {
+  --color-ivory: #faf8f3;
+  --color-white: #ffffff;
+  --color-charcoal: #20201f;
+  --color-rose: #c98283;
+  --color-rose-dark: #a85e60;
+  --color-gold: #b89a62;
+  --color-gray: #77746e;
+  --color-line: #e7e2d8;
+  --color-sand: #f2ede3;
+  --color-success: #3f7a55;
+  --color-danger: #b4443c;
+  --radius-card: 1.25rem;
+  --shadow-soft: 0 1px 2px rgb(32 32 31 / 0.04), 0 8px 24px rgb(32 32 31 / 0.06);
+  --shadow-lift: 0 2px 4px rgb(32 32 31 / 0.05), 0 18px 48px rgb(32 32 31 / 0.12);
+}
+
+@theme inline {
+  --color-ivory: var(--color-ivory);
+  --color-white: var(--color-white);
+  --color-charcoal: var(--color-charcoal);
+  --color-rose: var(--color-rose);
+  --color-rose-dark: var(--color-rose-dark);
+  --color-gold: var(--color-gold);
+  --color-gray: var(--color-gray);
+  --color-line: var(--color-line);
+  --color-sand: var(--color-sand);
+  --color-success: var(--color-success);
+  --color-danger: var(--color-danger);
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --radius-card: var(--radius-card);
+  --shadow-soft: var(--shadow-soft);
+  --shadow-lift: var(--shadow-lift);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-ivory);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgb(201 130 131 / 0.25);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-charcoal);
+  outline-offset: 3px;
+  border-radius: 6px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-fade-up {
+  animation: fade-up 0.7s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+@utility text-balance {
+  text-wrap: balance;
+}
+
+/* Long-form legal and help pages */
+.prose-celebrio h2 {
+  font-family: var(--font-serif);
+  font-size: 1.5rem;
+  margin-top: 2.25rem;
+  margin-bottom: 0.75rem;
+}
+.prose-celebrio h3 {
+  font-weight: 600;
+  margin-top: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+.prose-celebrio p,
+.prose-celebrio li {
+  color: #4a4844;
+  line-height: 1.75;
+}
+.prose-celebrio ul {
+  list-style: disc;
+  padding-left: 1.25rem;
+  margin: 0.75rem 0;
+}
+.prose-celebrio a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
