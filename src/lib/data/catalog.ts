@@ -147,16 +147,16 @@ function starterCatalog(): CatalogTemplateWithDefinition[] {
   });
 }
 
-function useFallback(): boolean {
+function shouldUseDemoCatalog(): boolean {
   if (isSupabaseConfigured()) return false;
-  if (serverEnv().NODE_ENV === "production") {
+  if (serverEnv().NODE_ENV === "production" && serverEnv().CELEBRIO_DEMO_MODE !== "true") {
     throw new Error("Supabase must be configured in production (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).");
   }
   return true;
 }
 
 export function isUsingDemoCatalog(): boolean {
-  return !isSupabaseConfigured() && serverEnv().NODE_ENV !== "production";
+  return !isSupabaseConfigured() && (serverEnv().NODE_ENV !== "production" || serverEnv().CELEBRIO_DEMO_MODE === "true");
 }
 
 /** Keeps search text to safe characters before it reaches a PostgREST filter. */
@@ -196,7 +196,7 @@ export async function listTemplates(query: CatalogQuery = {}): Promise<CatalogPa
   const sort = query.sort ?? "newest";
   const q = sanitizeSearch(query.q);
 
-  if (useFallback()) {
+  if (shouldUseDemoCatalog()) {
     const all = starterCatalog();
     const filtered = sortInMemory(all.filter((t) => matchesInMemory(t, query, q)), sort);
     return {
@@ -246,7 +246,7 @@ export async function listTemplates(query: CatalogQuery = {}): Promise<CatalogPa
 
 export async function getTemplateBySlug(slug: string): Promise<CatalogTemplateWithDefinition | null> {
   if (!/^[a-z0-9-]{2,80}$/.test(slug)) return null;
-  if (useFallback()) return starterCatalog().find((t) => t.slug === slug) ?? null;
+  if (shouldUseDemoCatalog()) return starterCatalog().find((t) => t.slug === slug) ?? null;
   const supabase = createSupabasePublicClient();
   const { data, error } = await supabase
     .from("templates")
@@ -286,7 +286,7 @@ export async function listCategoriesWithCounts(): Promise<Array<{ slug: Category
 }
 
 export async function listAllPublishedSlugs(): Promise<string[]> {
-  if (useFallback()) return starterCatalog().map((t) => t.slug);
+  if (shouldUseDemoCatalog()) return starterCatalog().map((t) => t.slug);
   const supabase = createSupabasePublicClient();
   const { data } = await supabase.from("templates").select("slug").eq("is_published", true).eq("is_archived", false).limit(1000);
   return (data ?? []).map((r) => r.slug as string);

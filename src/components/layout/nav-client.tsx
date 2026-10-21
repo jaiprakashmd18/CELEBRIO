@@ -6,6 +6,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import { ChevronDown, Menu, X } from "lucide-react";
 import { buttonClasses } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { AccountLink } from "./account-link";
 
 interface NavItem {
   href: string;
@@ -18,8 +19,11 @@ export function OccasionsMenu({ items }: { items: NavItem[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const menuId = useId();
   const pathname = usePathname();
-
-  useEffect(() => setOpen(false), [pathname]);
+  const [lastPath, setLastPath] = useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
@@ -66,10 +70,14 @@ export function OccasionsMenu({ items }: { items: NavItem[] }) {
   );
 }
 
-export function MobileNav({ occasions, signedIn }: { occasions: NavItem[]; signedIn: boolean }) {
+export function MobileNav({ occasions }: { occasions: NavItem[] }) {
   const [open, setOpen] = useState(false);
   const pathname = usePathname();
-  useEffect(() => setOpen(false), [pathname]);
+  const [lastPath, setLastPath] = useState(pathname);
+  if (pathname !== lastPath) {
+    setLastPath(pathname);
+    setOpen(false);
+  }
   useEffect(() => {
     document.body.style.overflow = open ? "hidden" : "";
     const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
@@ -107,9 +115,7 @@ export function MobileNav({ occasions, signedIn }: { occasions: NavItem[]; signe
           </div>
           <div className="grid gap-2">
             <Link href="/templates" className={buttonClasses("primary", "lg")}>Create an Invitation</Link>
-            <Link href={signedIn ? "/dashboard" : "/sign-in"} className={buttonClasses("secondary", "lg")}>
-              {signedIn ? "My account" : "Sign in"}
-            </Link>
+            <AccountLink variant="secondary" size="lg" />
           </div>
         </nav>
       </div>

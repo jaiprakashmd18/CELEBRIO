@@ -84,7 +84,6 @@ export function PropertiesPanel({ elements }: { elements: TemplateElement[] }) {
   const api = useEditorApi();
   const selectedId = useEditor((s) => s.selectedId);
   const project = useEditor((s) => s.project);
-  const definition = useEditor((s) => s.definition);
   const el = elements.find((x) => x.id === selectedId);
 
   if (!el) {

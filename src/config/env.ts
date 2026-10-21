@@ -21,6 +21,8 @@ const schema = z.object({
   UPLOAD_MAX_PIXELS: z.coerce.number().int().min(1_000_000).max(80_000_000).default(40_000_000),
   EXPORTS_PER_HOUR: z.coerce.number().int().min(1).max(500).default(30),
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+  /** CI / local demos only: serve the built-in starter catalogue when Supabase is not configured. */
+  CELEBRIO_DEMO_MODE: z.enum(["true", "false"]).default("false"),
 });
 
 export type ServerEnv = z.infer<typeof schema>;

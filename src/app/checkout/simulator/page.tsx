@@ -10,9 +10,9 @@ export const metadata: Metadata = { title: "Test payment simulator" };
 
 /** DEVELOPMENT ONLY stand-in for a provider's hosted checkout page. */
 export default async function SimulatorPage({ searchParams }: { searchParams: Promise<Record<string, string | undefined>> }) {
+  const sp = await searchParams;
   const env = serverEnv();
   if (env.NODE_ENV === "production" || env.PAYMENT_PROVIDER !== "simulator") notFound();
-  const sp = await searchParams;
   if (!sp.checkout || !/^sim_[a-f0-9]{32}$/.test(sp.checkout)) notFound();
   const amount = Number(sp.amount ?? 0);
   const site = env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");

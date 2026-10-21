@@ -1,3 +1,4 @@
+import { requireUser } from "@/lib/auth";
 import { PenLine } from "lucide-react";
 import { ProjectActions } from "@/components/shared/project-actions";
 import { ProjectCard } from "@/components/shared/project-card";
@@ -9,6 +10,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export const metadata = { title: "My drafts" };
 
 export default async function DraftsPage() {
+  await requireUser("/dashboard/drafts");
   const projects = await listMyProjects(await createSupabaseServerClient());
   return (
     <div>

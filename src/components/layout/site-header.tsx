@@ -1,13 +1,12 @@
 import Link from "next/link";
-import { getSessionUser } from "@/lib/auth";
 import { CATEGORIES } from "@/lib/templates/categories";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/primitives";
+import { AccountLink } from "./account-link";
 import { Logo } from "./logo";
 import { MobileNav, OccasionsMenu } from "./nav-client";
 
-export async function SiteHeader() {
-  const user = await getSessionUser().catch(() => null);
+export function SiteHeader() {
   const occasions = CATEGORIES.map((c) => ({ href: `/invitations/${c.slug}`, label: c.name }));
   return (
     <header className="sticky top-0 z-40 border-b border-line/70 bg-ivory/85 backdrop-blur-md">
@@ -29,20 +28,12 @@ export async function SiteHeader() {
           </Link>
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
-          {user ? (
-            <ButtonLink href="/dashboard" variant="ghost" size="sm">
-              My account
-            </ButtonLink>
-          ) : (
-            <ButtonLink href="/sign-in" variant="ghost" size="sm">
-              Sign in
-            </ButtonLink>
-          )}
+          <AccountLink />
           <ButtonLink href="/templates" size="sm">
             Create an Invitation
           </ButtonLink>
         </div>
-        <MobileNav occasions={occasions} signedIn={Boolean(user)} />
+        <MobileNav occasions={occasions} />
       </Container>
     </header>
   );

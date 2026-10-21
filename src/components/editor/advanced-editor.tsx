@@ -18,9 +18,12 @@ export function AdvancedEditor({ elements }: { elements: TemplateElement[] }) {
   const [drawer, setDrawer] = useState<null | "layers" | "props" | "style">(null);
   const [confirmReset, setConfirmReset] = useState(false);
 
-  useEffect(() => {
-    if (selectedId && window.matchMedia("(max-width: 1023px)").matches) setDrawer("props");
-  }, [selectedId]);
+  // On phones, selecting an element opens the edit drawer.
+  const [lastSelected, setLastSelected] = useState(selectedId);
+  if (selectedId !== lastSelected) {
+    setLastSelected(selectedId);
+    if (selectedId && typeof window !== "undefined" && window.matchMedia("(max-width: 1023px)").matches) setDrawer("props");
+  }
 
   const addText = useCallback(() => {
     const r = addTextElement(api.getState().project, format);

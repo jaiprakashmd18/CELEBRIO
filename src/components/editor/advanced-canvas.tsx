@@ -33,6 +33,7 @@ export function AdvancedCanvas({ elements, zoom, onFitScale }: { elements: Templ
   const containerRef = useRef<HTMLDivElement>(null);
   const overlayRef = useRef<SVGSVGElement>(null);
   const drag = useRef<DragState | null>(null);
+  const dragCount = useRef(0);
   const [fit, setFit] = useState(0.3);
   const [guides, setGuides] = useState<{ v: boolean; h: boolean }>({ v: false, h: false });
   const { width: W, height: H } = FORMAT_SIZES[project.format];
@@ -67,7 +68,13 @@ export function AdvancedCanvas({ elements, zoom, onFitScale }: { elements: Templ
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
     api.getState().select(el.id);
     const p = toSvg(e);
-    drag.current = { id: el.id, kind, startX: p.x, startY: p.y, orig: { x: el.x, y: el.y, w: el.w, h: el.h }, key: `drag-${el.id}-${Date.now()}` };
+    drag.current = { id: el.id, kind, startX: p.x, startY: p.y, orig: { x: el.x, y: el.y, w: el.w, h: el.h }, key: `drag-${el.id}-${++dragCount.current}` };
+  }
+
+  function onHandleDown(e: React.PointerEvent<SVGRectElement>) {
+    const sel = elements.find((x) => x.id === api.getState().selectedId);
+    const kind = e.currentTarget.dataset.handle as Handle | undefined;
+    if (sel && kind) begin(e, sel, kind);
   }
 
   function move(e: React.PointerEvent) {
@@ -178,7 +185,7 @@ export function AdvancedCanvas({ elements, zoom, onFitScale }: { elements: Templ
                       ["e", selected.x + selected.w, selected.y + selected.h / 2, "ew-resize"],
                     ] as Array<[Handle, number, number, string]>
                   ).map(([kind, x, y, cursor]) => (
-                    <rect key={kind} x={x - hs / 2} y={y - hs / 2} width={hs} height={hs} rx={hs / 4} fill="#FFFFFF" stroke="#20201F" strokeWidth={stroke} style={{ cursor }} onPointerDown={(e) => begin(e, selected, kind)} />
+                    <rect key={kind} x={x - hs / 2} y={y - hs / 2} width={hs} height={hs} rx={hs / 4} fill="#FFFFFF" stroke="#20201F" strokeWidth={stroke} style={{ cursor }} data-handle={kind} onPointerDown={onHandleDown} />
                   ))}
               </g>
             )}

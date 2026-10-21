@@ -1,5 +1,6 @@
 import "server-only";
 import { redirect } from "next/navigation";
+import { connection } from "next/server";
 import { isSupabaseConfigured } from "@/config/env";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
@@ -15,6 +16,8 @@ export interface SessionUser {
  * identity can never be forged by the browser.
  */
 export async function getSessionUser(): Promise<SessionUser | null> {
+  // Session-dependent output must never be prerendered or cached.
+  await connection();
   if (!isSupabaseConfigured()) return null;
   const supabase = await createSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();

@@ -1,3 +1,4 @@
+import { requireUser } from "@/lib/auth";
 import Link from "next/link";
 import { FileImage } from "lucide-react";
 import { DownloadButtons } from "@/components/shared/download-buttons";
@@ -11,6 +12,7 @@ import { createSupabaseServerClient } from "@/lib/supabase/server";
 export const metadata = { title: "Purchased invitations" };
 
 export default async function InvitationsPage() {
+  await requireUser("/dashboard/invitations");
   const supabase = await createSupabaseServerClient();
   const [projects, { data: entitlements }] = await Promise.all([
     listMyProjects(supabase, { status: "purchased" }),

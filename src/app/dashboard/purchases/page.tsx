@@ -1,3 +1,4 @@
+import { requireUser } from "@/lib/auth";
 import Link from "next/link";
 import { Receipt } from "lucide-react";
 import { Badge, EmptyState } from "@/components/ui/primitives";
@@ -11,6 +12,7 @@ const TONE: Record<string, "success" | "neutral" | "rose" | "gold"> = { paid: "s
 const LABEL: Record<string, string> = { paid: "Paid", pending: "Awaiting confirmation", failed: "Failed", expired: "Expired", cancelled: "Cancelled", refunded: "Refunded", disputed: "Disputed" };
 
 export default async function PurchasesPage() {
+  await requireUser("/dashboard/purchases");
   const supabase = await createSupabaseServerClient();
   const { data: orders } = await supabase
     .from("orders")

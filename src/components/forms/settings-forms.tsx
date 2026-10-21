@@ -34,7 +34,8 @@ export function DeleteAccountForm() {
       setBusy(false);
       return;
     }
-    window.location.assign("/?account=deleted");
+    // Full reload so every cached signed-in view is discarded.
+    window.location.replace(`${window.location.origin}/?account=deleted`);
   }
   return (
     <div className="space-y-3">
