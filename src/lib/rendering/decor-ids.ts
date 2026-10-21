@@ -1,0 +1,31 @@
+/** Identifiers of the original, code-drawn decorative illustrations (see decor.ts). */
+export const DECOR_IDS = [
+  "confetti",
+  "balloons",
+  "sparkles",
+  "starfield",
+  "crescent-moon",
+  "cloud",
+  "botanical-branch",
+  "floral-corner",
+  "bloom",
+  "leaf-sprig",
+  "gold-frame",
+  "deco-corners",
+  "laurel",
+  "grad-cap",
+  "geometric",
+  "hearts",
+  "ring",
+  "sunburst",
+  "citrus",
+  "neon-zigzag",
+  "divider",
+  "dot-grid",
+  "squiggle",
+  "blob",
+  "arch-frame",
+  "wave",
+] as const;
+
+export type DecorId = (typeof DECOR_IDS)[number];

@@ -1,0 +1,72 @@
+# Authoring templates
+
+Every Celebrio template is a versioned JSON document validated by `templateDefinitionSchema` (`src/lib/templates/schema.ts`). The same definition drives the gallery preview, both editors and the export engine.
+
+## Structure
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "fields": [ /* what the customer can edit */ ],
+  "palettes": [ /* colour variations */ ],
+  "fontSets": [ /* typography variations */ ],
+  "defaultPaletteId": "peach",
+  "defaultFontSetId": "joyful",
+  "defaultFormat": "portrait",
+  "formats": { "portrait": { /* layout */ }, "square": { }, "landscape": { } },
+  "sampleData": { "celebrant_name": "Aanya" },
+  "sampleImages": { "photo": "balloons" },
+  "capabilities": { "advancedEditor": true, "paletteSwitch": true, "fontSwitch": true, "formatSwitch": true }
+}
+```
+
+### Fields
+
+```json
+{ "key": "venue", "label": "Venue name", "type": "text", "group": "details", "required": true, "maxLength": 60, "placeholder": "e.g. The Garden Courtyard" }
+```
+
+- `type`: `text`, `multiline`, `date` (stored `YYYY-MM-DD`), `time` (`HH:MM`), or `image`.
+- `group`: `names`, `event`, `details`, `rsvp`, `message` or `photos` — controls where the field appears in the simple editor.
+- Text fields **must** set `maxLength`; required fields need `sampleData`; image fields need a `sampleImages` entry.
+
+### Palettes and font sets
+
+Palettes define seven colours: `background`, `surface`, `primary`, `secondary`, `accent`, `text`, `muted`. Elements refer to them as `"palette.primary"` (or a literal `#RRGGBB`), so switching palettes recolours the whole design.
+
+Font sets assign a family to three roles: `display`, `script` and `body`. Available families (all SIL OFL): `playfair`, `cormorant`, `inter`, `greatvibes`, `montserrat`, `bebas`, `josefin`, `dmserif`, `pacifico`. Adding a font: put the TTF in `public/fonts`, register it in `src/lib/rendering/fonts.ts`, then run `npm run fonts:metrics` and `npm run fonts:css`.
+
+### Layouts
+
+Each format has fixed export dimensions: portrait **1080 × 1920**, square **1080 × 1080**, landscape **1920 × 1080**. A layout has a `background` (`solid`, `linear` with `angle`, or `radial`) and an ordered list of `elements` (first = bottom layer). Give each format its own composition rather than stretching another — the validator rejects layouts whose size doesn't match the format.
+
+Common element properties: `id` (unique per layout), `name`, `x`, `y`, `w`, `h`, `rotation`, `opacity`, `locked` (decorative, not draggable on the canvas), `hidden`, `flipX`, `flipY`.
+
+| Type | Extra properties |
+| --- | --- |
+| `text` | `content` with placeholders like `{venue}` or formatted `{event_date|long}`; `style`: `fontRole`, optional `fontFamily`, `fontSize`, `minFontSize`, `weight`, `italic`, `color`, `align`, `verticalAlign`, `letterSpacing` (em), `lineHeight`, `transform` (`none`/`uppercase`), `maxLines` |
+| `image` | `field` (an image field key), `frame` (`rect`, `rounded`, `circle`, `arch`, with optional `radius`, `stroke`, `strokeWidth`), `filter` (`none`, `grayscale`, `warm`, `cool`) |
+| `shape` | `shape` (`rect`, `ellipse`, `line`), `fill`, `fillOpacity`, `stroke`, `strokeWidth`, `radius`, `dash` |
+| `decor` | `decor` (one of the original illustrations in `src/lib/rendering/decor-ids.ts`, e.g. `confetti`, `floral-corner`, `laurel`, `neon-zigzag`), `colors` (1–4), `seed`, `density`, `strokeWidth` |
+
+**Date/time formatters:** `long` (Saturday, 13 March 2027), `short` (13.03.2027), `dots` (13 · 03 · 27), `day`, `ordinal`, `month`, `mon`, `year`, `weekday`, `daymonth` (13th March), `time` (7:30 PM), `upper`. A line whose placeholders are all empty is hidden automatically (e.g. `RSVP {rsvp}`).
+
+**Text fitting:** text wraps inside its box; if it doesn't fit, the engine shrinks the font down to `minFontSize`, then truncates with "…" and warns the customer in the editor. Give boxes enough height for `maxLines × fontSize × lineHeight`.
+
+## Workflow
+
+**In the admin dashboard** (recommended): Admin → Templates → *New template* → start from an existing design → edit the JSON while watching the live preview in every format → *Create draft* → *Generate from design* (renders the preview image with the export engine) → *Publish*. Saving a definition later creates a new version; existing customer drafts stay on the version they started with.
+
+**In code** (for starter templates): edit `src/templates/starter/*.ts`, then
+
+```bash
+npm run templates:validate      # schema + no text overflow with sample data
+npm run templates:previews      # regenerate public/templates/previews/*.webp
+npm run db:seed:generate        # regenerate supabase/seed.sql
+```
+
+The seed never overwrites a template that already exists in the database; publish changes to existing templates through the admin dashboard.
+
+## Artwork and licensing
+
+All decorative artwork is drawn in code (`src/lib/rendering/decor.ts`); the sample "photos" are original illustrations generated by `scripts/generate-sample-images.ts`. Fonts are under the SIL Open Font License (`public/fonts/licenses`). Only add artwork, fonts or photos that you created or that are licensed for commercial use in a product like this.
