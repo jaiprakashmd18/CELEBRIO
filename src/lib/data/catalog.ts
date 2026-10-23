@@ -1,5 +1,5 @@
 import "server-only";
-import { isSupabaseConfigured, serverEnv } from "@/config/env";
+import { demoCatalogAllowed, isSupabaseConfigured } from "@/config/env";
 import { createSupabasePublicClient } from "@/lib/supabase/public";
 import { CATEGORIES, type CategorySlug } from "@/lib/templates/categories";
 import { FORMAT_IDS, templateDefinitionSchema, type FormatId, type TemplateDefinition } from "@/lib/templates/schema";
@@ -149,14 +149,14 @@ function starterCatalog(): CatalogTemplateWithDefinition[] {
 
 function shouldUseDemoCatalog(): boolean {
   if (isSupabaseConfigured()) return false;
-  if (serverEnv().NODE_ENV === "production" && serverEnv().CELEBRIO_DEMO_MODE !== "true") {
+  if (!demoCatalogAllowed()) {
     throw new Error("Supabase must be configured in production (NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY).");
   }
   return true;
 }
 
 export function isUsingDemoCatalog(): boolean {
-  return !isSupabaseConfigured() && (serverEnv().NODE_ENV !== "production" || serverEnv().CELEBRIO_DEMO_MODE === "true");
+  return !isSupabaseConfigured() && demoCatalogAllowed();
 }
 
 /** Keeps search text to safe characters before it reaches a PostgREST filter. */

@@ -23,6 +23,8 @@ const schema = z.object({
   NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
   /** CI / local demos only: serve the built-in starter catalogue when Supabase is not configured. */
   CELEBRIO_DEMO_MODE: z.enum(["true", "false"]).default("false"),
+  /** Set by Vercel: "production", "preview" or "development". */
+  VERCEL_ENV: z.string().optional(),
 });
 
 export type ServerEnv = z.infer<typeof schema>;
@@ -44,6 +46,17 @@ export function serverEnv(): ServerEnv {
 }
 
 /** True when Supabase credentials are configured. */
+/**
+ * The built-in starter catalogue may be used instead of the database only
+ * when Supabase isn't configured AND this isn't the live site: local
+ * development, CI (CELEBRIO_DEMO_MODE) or a Vercel preview deployment
+ * without database keys. The live site always requires Supabase.
+ */
+export function demoCatalogAllowed(): boolean {
+  const env = serverEnv();
+  return env.NODE_ENV !== "production" || env.CELEBRIO_DEMO_MODE === "true" || env.VERCEL_ENV === "preview";
+}
+
 export function isSupabaseConfigured(): boolean {
   const env = serverEnv();
   return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
