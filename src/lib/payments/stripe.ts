@@ -48,6 +48,21 @@ export function createStripeProvider(opts: { secretKey?: string; webhookSecret?:
       return { providerCheckoutId: session.id, url: session.url, expiresAt };
     },
 
+    async fetchCheckoutStatus(checkoutId: string) {
+      if (!opts.secretKey || !/^cs_[A-Za-z0-9_]+$/.test(checkoutId)) return null;
+      const s = await stripe().checkout.sessions.retrieve(checkoutId);
+      if (s.payment_status === "paid") {
+        return {
+          status: "paid" as const,
+          paymentReference: typeof s.payment_intent === "string" ? s.payment_intent : (s.payment_intent?.id ?? null),
+          amountMinor: s.amount_total ?? -1,
+          currency: (s.currency ?? "").toUpperCase(),
+        };
+      }
+      if (s.status === "expired") return { status: "expired" as const };
+      return { status: "pending" as const };
+    },
+
     async parseWebhook(rawBody: string, headers: Headers): Promise<WebhookEvent> {
       if (!opts.webhookSecret) throw new PaymentConfigError("STRIPE_WEBHOOK_SECRET is not set");
       const signature = headers.get("stripe-signature");

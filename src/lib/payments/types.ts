@@ -35,7 +35,17 @@ export interface PaymentProvider {
   createCheckout(input: CreateCheckoutInput): Promise<CheckoutSession>;
   /** Verifies the signature and normalises the event. Throws WebhookSignatureError when invalid. */
   parseWebhook(rawBody: string, headers: Headers): Promise<WebhookEvent>;
+  /**
+   * Asks the provider directly (server to server, authenticated with the
+   * secret key) whether a checkout has been paid. Used as a backup when a
+   * webhook is delayed or misconfigured. Optional: return null if unsupported.
+   */
+  fetchCheckoutStatus?(checkoutId: string): Promise<CheckoutStatus | null>;
 }
+
+export type CheckoutStatus =
+  | { status: "paid"; paymentReference: string | null; amountMinor: number; currency: string }
+  | { status: "pending" | "expired" | "cancelled" };
 
 export class WebhookSignatureError extends Error {
   constructor(message = "Invalid webhook signature") {

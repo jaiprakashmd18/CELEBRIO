@@ -6,6 +6,7 @@ import sharp from "sharp";
 import { z } from "zod";
 import { requireAdmin } from "@/lib/auth";
 import { renderPng, loadSampleImage } from "@/lib/exports/rasterize";
+import { reconcilePendingOrder } from "@/lib/orders/reconcile";
 import { availableFormats, createProjectFromTemplate } from "@/lib/rendering/scene";
 import { checkUpload } from "@/lib/security/file-validation";
 import { templateDefinitionSchema, type FormatId } from "@/lib/templates/schema";
@@ -336,6 +337,16 @@ export async function recordOrderRefund(_prev: ActionResult | null, form: FormDa
   await audit(`order.${parsed.data.status}`, "order", parsed.data.id, { changed: row?.changed ?? false });
   revalidatePath(`/admin/orders/${parsed.data.id}`);
   return { ok: true, message: row?.changed ? `Order marked ${parsed.data.status}; access revoked.` : `No change — order is ${row?.status}.` };
+}
+
+/** Asks the payment provider directly whether a pending order was paid. */
+export async function checkOrderWithProvider(form: FormData) {
+  await requireAdmin();
+  const id = z.string().uuid().parse(form.get("id"));
+  const outcome = await reconcilePendingOrder(createSupabaseAdminClient(), id);
+  await audit("order.provider_check", "order", id, { outcome });
+  revalidatePath(`/admin/orders/${id}`);
+  redirect(`/admin/orders/${id}?check=${outcome}`);
 }
 
 export async function expireStaleOrders() {

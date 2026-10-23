@@ -73,6 +73,35 @@ describe("Razorpay webhook verification", () => {
   });
 });
 
+describe("Razorpay payment status check (webhook backup)", () => {
+  const make = (body: unknown, status = 200) => {
+    const calls: string[] = [];
+    const provider = createRazorpayProvider({
+      keyId: "rzp_test_x",
+      keySecret: "secret123",
+      fetchImpl: (async (url: string) => {
+        calls.push(url);
+        return new Response(JSON.stringify(body), { status });
+      }) as unknown as typeof fetch,
+    });
+    return { provider, calls };
+  };
+
+  it("reports a paid link with the provider's own amount and payment id", async () => {
+    const { provider, calls } = make({ status: "paid", amount_paid: 4900, currency: "INR", payments: [{ payment_id: "pay_9", status: "captured" }] });
+    expect(await provider.fetchCheckoutStatus!("plink_abc")).toEqual({ status: "paid", paymentReference: "pay_9", amountMinor: 4900, currency: "INR" });
+    expect(calls[0]).toBe("https://api.razorpay.com/v1/payment_links/plink_abc");
+  });
+  it("reports pending and expired links without granting anything", async () => {
+    expect(await make({ status: "created" }).provider.fetchCheckoutStatus!("plink_abc")).toEqual({ status: "pending" });
+    expect(await make({ status: "expired" }).provider.fetchCheckoutStatus!("plink_abc")).toEqual({ status: "expired" });
+  });
+  it("refuses malformed ids and surfaces API errors", async () => {
+    expect(await make({}).provider.fetchCheckoutStatus!("../../v1/payments")).toBeNull();
+    await expect(make({ error: {} }, 401).provider.fetchCheckoutStatus!("plink_abc")).rejects.toThrow(/401/);
+  });
+});
+
 describe("development simulator", () => {
   it("uses the same signed-webhook path", async () => {
     const provider = createSimulatorProvider({ webhookSecret: "simulator-secret-123456", siteUrl: "http://localhost:3000" });

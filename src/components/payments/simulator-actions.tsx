@@ -18,7 +18,7 @@ export function SimulatorActions({ checkoutId, successUrl, cancelUrl }: { checko
   return (
     <div className="mt-6 grid gap-2">
       {error && <p role="alert" className="text-sm text-danger">{error}</p>}
-      <button type="button" disabled={busy} onClick={() => send("pay")} className="h-12 rounded-full bg-[#2B6CB0] font-medium text-white disabled:opacity-50">Pay (test success)</button>
+      <button type="button" disabled={busy} onClick={() => send("pay")} className="h-12 rounded-full bg-[#2B6CB0] font-medium text-[#fff] disabled:opacity-50">Pay (test success)</button>
       <button type="button" disabled={busy} onClick={() => send("decline")} className="h-12 rounded-full ring-1 ring-line">Decline card (test failure)</button>
       <a href={cancelUrl} className="py-2 text-center text-sm underline">Cancel and return</a>
     </div>

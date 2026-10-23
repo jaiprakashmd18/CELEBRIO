@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Logo } from "@/components/layout/logo";
+import { ThemeToggle } from "@/components/layout/theme-toggle";
 import { AdminNav } from "@/components/shared/admin-nav";
 import { requireAdmin } from "@/lib/auth";
 
@@ -14,7 +15,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
       <header className="border-b border-line bg-white">
         <div className="flex h-14 items-center justify-between gap-4 px-4 sm:px-6">
           <div className="flex items-center gap-3"><Logo /><span className="rounded-full bg-charcoal px-2 py-0.5 text-xs text-ivory">Admin</span></div>
-          <div className="flex items-center gap-3 text-sm"><span className="hidden text-gray sm:inline">{user.email}</span><Link href="/dashboard" className="underline">Exit admin</Link></div>
+          <div className="flex items-center gap-3 text-sm"><ThemeToggle /><span className="hidden text-gray sm:inline">{user.email}</span><Link href="/dashboard" className="underline">Exit admin</Link></div>
         </div>
         <AdminNav />
       </header>

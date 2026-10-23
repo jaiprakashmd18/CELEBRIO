@@ -140,7 +140,7 @@ export function AdvancedCanvas({ elements, zoom, onFitScale }: { elements: Templ
   const stroke = 2 / scale;
 
   return (
-    <div ref={containerRef} className="relative h-full w-full overflow-auto bg-[#ECE8E0]" onPointerDown={() => api.getState().select(null)}>
+    <div ref={containerRef} className="relative h-full w-full overflow-auto bg-[var(--color-canvas)]" onPointerDown={() => api.getState().select(null)}>
       <div className="flex min-h-full min-w-full items-center justify-center p-4" style={{ width: W * scale + 32, height: H * scale + 32 }}>
         <div className="relative shadow-lift" style={{ width: W * scale, height: H * scale }}>
           <InvitationSvg definition={definition} project={project} idPrefix="canvas" title={`${template.name} — editing canvas`} localUrls={localUrls} className="absolute inset-0 h-full" />

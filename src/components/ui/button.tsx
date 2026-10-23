@@ -9,11 +9,11 @@ const base =
   "inline-flex items-center justify-center gap-2 rounded-full font-medium transition-[background,color,box-shadow,transform] duration-200 disabled:pointer-events-none disabled:opacity-50 active:translate-y-px whitespace-nowrap";
 
 const variants: Record<Variant, string> = {
-  primary: "bg-charcoal text-ivory hover:bg-black shadow-soft",
+  primary: "bg-charcoal text-ivory hover:opacity-90 shadow-soft",
   secondary: "bg-white text-charcoal ring-1 ring-line hover:ring-charcoal/30 hover:bg-sand/40",
   ghost: "text-charcoal hover:bg-sand",
-  accent: "bg-rose text-white hover:bg-rose-dark shadow-soft",
-  danger: "bg-danger text-white hover:bg-danger/90",
+  accent: "bg-rose text-[#fff] hover:opacity-90 shadow-soft",
+  danger: "bg-danger text-[#fff] hover:opacity-90",
 };
 
 const sizes: Record<Size, string> = {
