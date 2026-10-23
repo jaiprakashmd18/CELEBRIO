@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { checkUpload, detectImageType } from "@/lib/security/file-validation";
 import { safeNextPath } from "@/lib/security/redirect";
+import { withoutBlankValues } from "@/config/env";
 
 const JPEG = new Uint8Array([0xff, 0xd8, 0xff, 0xe0, 0, 0, 0, 0, 0, 0, 0, 0]);
 const PNG = new Uint8Array([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a, 0, 0, 0, 0]);
@@ -50,5 +51,13 @@ describe("order id on the payment return page", () => {
   it("rejects anything that isn't an order id", () => {
     expect(extractOrderId({ order: "../../admin" })).toBeNull();
     expect(extractOrderId({})).toBeNull();
+  });
+});
+
+describe("environment parsing", () => {
+  it("treats blank values as unset and trims pasted whitespace", () => {
+    expect(withoutBlankValues({ STRIPE_SECRET_KEY: "", RAZORPAY_KEY_ID: "  rzp_test_abc \n", EMPTY: "   " })).toEqual({
+      RAZORPAY_KEY_ID: "rzp_test_abc",
+    });
   });
 });
