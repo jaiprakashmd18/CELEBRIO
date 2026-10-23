@@ -3,6 +3,7 @@ import { CATEGORIES } from "@/lib/templates/categories";
 import { ButtonLink } from "@/components/ui/button";
 import { Container } from "@/components/ui/primitives";
 import { AccountLink } from "./account-link";
+import { ThemeToggle } from "./theme-toggle";
 import { Logo } from "./logo";
 import { MobileNav, OccasionsMenu } from "./nav-client";
 
@@ -28,12 +29,16 @@ export function SiteHeader() {
           </Link>
         </nav>
         <div className="hidden items-center gap-2 lg:flex">
+          <ThemeToggle />
           <AccountLink />
           <ButtonLink href="/templates" size="sm">
             Create an Invitation
           </ButtonLink>
         </div>
-        <MobileNav occasions={occasions} />
+        <div className="flex items-center gap-1 lg:hidden">
+          <ThemeToggle />
+          <MobileNav occasions={occasions} />
+        </div>
       </Container>
     </header>
   );

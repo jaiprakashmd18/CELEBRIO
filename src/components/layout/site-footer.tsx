@@ -28,8 +28,9 @@ export function SiteFooter() {
       ],
     },
   ];
+  // data-theme="light" pins the footer to the light palette, so it stays dark in both themes.
   return (
-    <footer className="mt-24 bg-charcoal text-ivory">
+    <footer data-theme="light" className="mt-24 bg-charcoal text-ivory">
       <Container className="grid gap-12 py-16 md:grid-cols-[1.4fr_repeat(3,1fr)]">
         <div className="space-y-4">
           <div className="[&_span]:text-ivory [&_svg_circle]:fill-ivory/10">

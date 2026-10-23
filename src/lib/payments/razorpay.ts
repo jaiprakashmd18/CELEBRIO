@@ -41,6 +41,27 @@ export function createRazorpayProvider(opts: { keyId?: string; keySecret?: strin
       return { providerCheckoutId: body.id, url: body.short_url, expiresAt };
     },
 
+    async fetchCheckoutStatus(checkoutId: string) {
+      if (!opts.keyId || !opts.keySecret || !/^plink_[A-Za-z0-9]+$/.test(checkoutId)) return null;
+      const res = await doFetch(`https://api.razorpay.com/v1/payment_links/${checkoutId}`, {
+        headers: { Authorization: `Basic ${Buffer.from(`${opts.keyId}:${opts.keySecret}`).toString("base64")}` },
+      });
+      if (!res.ok) throw new Error(`Razorpay status check failed: ${res.status}`);
+      const link = (await res.json()) as {
+        status?: string;
+        amount_paid?: number;
+        currency?: string;
+        payments?: Array<{ payment_id?: string; status?: string }> | null;
+      };
+      if (link.status === "paid") {
+        const payment = (link.payments ?? []).find((p) => p.status === "captured") ?? link.payments?.[0];
+        return { status: "paid" as const, paymentReference: payment?.payment_id ?? null, amountMinor: link.amount_paid ?? -1, currency: (link.currency ?? "").toUpperCase() };
+      }
+      if (link.status === "expired") return { status: "expired" as const };
+      if (link.status === "cancelled") return { status: "cancelled" as const };
+      return { status: "pending" as const };
+    },
+
     async parseWebhook(rawBody: string, headers: Headers): Promise<WebhookEvent> {
       if (!opts.webhookSecret) throw new PaymentConfigError("RAZORPAY_WEBHOOK_SECRET is not set");
       const signature = headers.get("x-razorpay-signature") ?? "";

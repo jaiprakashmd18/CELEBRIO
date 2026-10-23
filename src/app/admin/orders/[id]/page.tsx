@@ -2,14 +2,24 @@ import { requireAdmin } from "@/lib/auth";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { checkOrderWithProvider } from "@/app/admin/actions";
 import { RefundForm } from "@/components/admin/small-forms";
+import { Button } from "@/components/ui/button";
 import { Badge, Card } from "@/components/ui/primitives";
 import { formatMoney } from "@/lib/money";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Order" };
 
-export default async function AdminOrderPage({ params }: { params: Promise<{ id: string }> }) {
+const CHECK_MESSAGES: Record<string, string> = {
+  paid: "The provider confirmed the payment. The order is now paid and the customer has access.",
+  unchanged: "The provider reports no completed payment for this order.",
+  unsupported: "This provider doesn't support status checks (or the order has no checkout).",
+  error: "The provider couldn't be reached or returned an error. Check the API keys in Vercel and the server logs.",
+};
+
+export default async function AdminOrderPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ check?: string }> }) {
+  const { check } = await searchParams;
   await requireAdmin();
   const { id } = await params;
   if (!z.string().uuid().safeParse(id).success) notFound();
@@ -56,6 +66,14 @@ export default async function AdminOrderPage({ params }: { params: Promise<{ id:
           </ul>
         </Card>
         <Card className="space-y-3 p-6">
+          {o.status === "pending" && (
+            <div className="space-y-2 border-b border-line pb-4">
+              <h2 className="font-medium">Customer paid but not unlocked?</h2>
+              <p className="text-sm text-gray">Ask the payment provider directly whether this checkout was paid. If it was, the order is unlocked exactly as a webhook would.</p>
+              <form action={checkOrderWithProvider}><input type="hidden" name="id" value={o.id} /><Button type="submit" size="sm">Check payment with provider</Button></form>
+            </div>
+          )}
+          {check && <p role="status" className="rounded-xl bg-sand p-3 text-sm">{CHECK_MESSAGES[check] ?? check}</p>}
           <h2 className="font-medium">Refunds & disputes</h2>
           <p className="text-sm text-gray">Issue the refund in your payment provider&apos;s dashboard first (the provider&apos;s refund webhook also updates this automatically). Recording it here revokes download access.</p>
           {o.status === "paid" || o.status === "disputed" ? <RefundForm orderId={o.id} /> : <p className="text-sm">No action available for a {o.status} order.</p>}

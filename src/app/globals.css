@@ -4,7 +4,8 @@
 /*
  * Celebrio design tokens. Change the brand here and the whole interface follows.
  */
-:root {
+:root,
+[data-theme="light"] {
   --color-ivory: #faf8f3;
   --color-white: #ffffff;
   --color-charcoal: #20201f;
@@ -19,6 +20,35 @@
   --radius-card: 1.25rem;
   --shadow-soft: 0 1px 2px rgb(32 32 31 / 0.04), 0 8px 24px rgb(32 32 31 / 0.06);
   --shadow-lift: 0 2px 4px rgb(32 32 31 / 0.05), 0 18px 48px rgb(32 32 31 / 0.12);
+  --color-canvas: #ece8e0;
+  --color-body-text: #4a4844;
+  color-scheme: light;
+}
+
+/*
+ * Dark theme: the same tokens with dark values. "charcoal" stays the main
+ * text colour and "ivory" the page background, so every component adapts
+ * without changes. Chosen with the theme toggle (saved in this browser) or
+ * the device setting by default — see the script in src/app/layout.tsx.
+ * A section can also pin a theme with its own data-theme attribute.
+ */
+[data-theme="dark"] {
+  --color-ivory: #121211;
+  --color-white: #1c1b19;
+  --color-charcoal: #f2eee6;
+  --color-rose: #c98283;
+  --color-rose-dark: #e2a6a7;
+  --color-gold: #c9ad78;
+  --color-gray: #a8a399;
+  --color-line: #33312d;
+  --color-sand: #262420;
+  --color-success: #6fbf8a;
+  --color-danger: #ec7a70;
+  --shadow-soft: 0 1px 2px rgb(0 0 0 / 0.3), 0 8px 24px rgb(0 0 0 / 0.35);
+  --shadow-lift: 0 2px 4px rgb(0 0 0 / 0.35), 0 18px 48px rgb(0 0 0 / 0.5);
+  --color-canvas: #0b0b0a;
+  --color-body-text: #c9c4ba;
+  color-scheme: dark;
 }
 
 @theme inline {
@@ -109,7 +139,7 @@ body {
 }
 .prose-celebrio p,
 .prose-celebrio li {
-  color: #4a4844;
+  color: var(--color-body-text);
   line-height: 1.75;
 }
 .prose-celebrio ul {

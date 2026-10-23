@@ -35,3 +35,20 @@ describe("redirect safety", () => {
     expect(safeNextPath(null, "/x")).toBe("/x");
   });
 });
+
+import { extractOrderId } from "@/lib/orders/order-id";
+
+describe("order id on the payment return page", () => {
+  const id = "3f2a9c1e-5d0e-4b0a-9c1f-3f7c2a1e9d11";
+  it("reads a clean order id", () => expect(extractOrderId({ order: id })).toBe(id));
+  it("tolerates provider parameters appended without '&'", () => {
+    expect(extractOrderId({ order: `${id}?razorpay_payment_id=pay_123` })).toBe(id);
+  });
+  it("falls back to Razorpay's reference id", () => {
+    expect(extractOrderId({ razorpay_payment_link_reference_id: id })).toBe(id);
+  });
+  it("rejects anything that isn't an order id", () => {
+    expect(extractOrderId({ order: "../../admin" })).toBeNull();
+    expect(extractOrderId({})).toBeNull();
+  });
+});

@@ -17,6 +17,7 @@ export const LIMITS = {
   projectWrite: { windowSeconds: 60, max: 90 },
   preview: { windowSeconds: 3600, max: 120 },
   accountDelete: { windowSeconds: 3600, max: 3 },
+  reconcile: { windowSeconds: 60, max: 20 },
 } as const;
 
 export type LimitName = keyof typeof LIMITS;

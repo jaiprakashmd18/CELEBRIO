@@ -258,7 +258,7 @@ function EditorShell({ accountsAvailable, resumeGuestDraft }: { accountsAvailabl
           <AdvancedEditor elements={elements} />
         ) : (
           <div className="h-full overflow-y-auto lg:grid lg:grid-cols-[minmax(22rem,30rem)_1fr] lg:overflow-hidden">
-            <div className="sticky top-0 z-10 h-[40vh] border-b border-line bg-[#ECE8E0] p-3 lg:static lg:order-2 lg:h-full lg:border-0 lg:p-10">
+            <div className="sticky top-0 z-10 h-[40vh] border-b border-line bg-[var(--color-canvas)] p-3 lg:static lg:order-2 lg:h-full lg:border-0 lg:p-10">
               <LivePreview format={project.format} />
             </div>
             <div className="bg-ivory p-4 sm:p-6 lg:order-1 lg:min-h-0 lg:overflow-y-auto lg:border-r lg:border-line">

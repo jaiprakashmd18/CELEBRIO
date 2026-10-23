@@ -4,6 +4,8 @@ import { Receipt } from "lucide-react";
 import { Badge, EmptyState } from "@/components/ui/primitives";
 import { formatDate } from "@/lib/data/dashboard";
 import { formatMoney } from "@/lib/money";
+import { reconcilePendingOrder } from "@/lib/orders/reconcile";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 
 export const metadata = { title: "Purchase history" };
@@ -14,6 +16,12 @@ const LABEL: Record<string, string> = { paid: "Paid", pending: "Awaiting confirm
 export default async function PurchasesPage() {
   await requireUser("/dashboard/purchases");
   const supabase = await createSupabaseServerClient();
+  // Confirm recent pending payments with the provider in case a webhook was missed.
+  const { data: pending } = await supabase.from("orders").select("id").eq("status", "pending").order("created_at", { ascending: false }).limit(3);
+  if (pending?.length) {
+    const admin = createSupabaseAdminClient();
+    await Promise.all(pending.map((o) => reconcilePendingOrder(admin, o.id)));
+  }
   const { data: orders } = await supabase
     .from("orders")
     .select("id, status, amount_minor, currency, package, created_at, paid_at, project_id, entitlement_snapshot, templates(name)")

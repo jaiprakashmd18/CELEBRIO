@@ -107,8 +107,8 @@ export default async function HomePage() {
               const Icon = style.icon;
               return (
                 <li key={c.slug}>
-                  <Link href={`/invitations/${c.slug}`} className={`group flex h-full flex-col justify-between rounded-[var(--radius-card)] bg-gradient-to-br ${style.tint} p-5 ring-1 ring-line transition hover:-translate-y-0.5 hover:shadow-soft sm:p-6`}>
-                    <Icon aria-hidden className="size-6 text-charcoal/80" />
+                  <Link href={`/invitations/${c.slug}`} className={`group flex h-full flex-col justify-between rounded-[var(--radius-card)] bg-gradient-to-br ${style.tint} p-5 text-[#20201F] ring-1 ring-line transition hover:-translate-y-0.5 hover:shadow-soft sm:p-6`}>
+                    <Icon aria-hidden className="size-6 opacity-80" />
                     <span className="mt-8 flex items-center justify-between font-serif text-lg sm:text-xl">
                       {c.name}
                       <ArrowRight aria-hidden className="size-4 opacity-0 transition group-hover:translate-x-0.5 group-hover:opacity-100" />
