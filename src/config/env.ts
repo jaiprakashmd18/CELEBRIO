@@ -10,7 +10,7 @@ const schema = z.object({
   NEXT_PUBLIC_SUPABASE_URL: z.string().url().optional(),
   NEXT_PUBLIC_SUPABASE_ANON_KEY: z.string().min(20).optional(),
   SUPABASE_SERVICE_ROLE_KEY: z.string().min(20).optional(),
-  PAYMENT_PROVIDER: z.enum(["stripe", "razorpay", "simulator"]).default("stripe"),
+  PAYMENT_PROVIDER: z.preprocess((v) => (typeof v === "string" ? v.toLowerCase() : v), z.enum(["stripe", "razorpay", "simulator"]).default("stripe")),
   STRIPE_SECRET_KEY: z.string().startsWith("sk_").optional(),
   STRIPE_WEBHOOK_SECRET: z.string().startsWith("whsec_").optional(),
   RAZORPAY_KEY_ID: z.string().startsWith("rzp_").optional(),
@@ -31,9 +31,23 @@ export type ServerEnv = z.infer<typeof schema>;
 
 let cached: ServerEnv | null = null;
 
+/**
+ * Hosting dashboards make it easy to save a variable with an empty value.
+ * Treat blank values as "not set" so they fall back to defaults instead of
+ * failing validation and taking down every page.
+ */
+export function withoutBlankValues(source: Record<string, string | undefined>): Record<string, string> {
+  const out: Record<string, string> = {};
+  for (const [key, value] of Object.entries(source)) {
+    const trimmed = value?.trim();
+    if (trimmed) out[key] = trimmed;
+  }
+  return out;
+}
+
 export function serverEnv(): ServerEnv {
   if (cached) return cached;
-  const parsed = schema.safeParse(process.env);
+  const parsed = schema.safeParse(withoutBlankValues(process.env));
   if (!parsed.success) {
     const problems = parsed.error.issues.map((i) => `${i.path.join(".")}: ${i.message}`).join("; ");
     throw new Error(`Invalid environment configuration — ${problems}. See .env.example.`);
@@ -45,7 +59,6 @@ export function serverEnv(): ServerEnv {
   return cached;
 }
 
-/** True when Supabase credentials are configured. */
 /**
  * The built-in starter catalogue may be used instead of the database only
  * when Supabase isn't configured AND this isn't the live site: local
@@ -57,6 +70,7 @@ export function demoCatalogAllowed(): boolean {
   return env.NODE_ENV !== "production" || env.CELEBRIO_DEMO_MODE === "true" || env.VERCEL_ENV === "preview";
 }
 
+/** True when Supabase credentials are configured. */
 export function isSupabaseConfigured(): boolean {
   const env = serverEnv();
   return Boolean(env.NEXT_PUBLIC_SUPABASE_URL && env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
